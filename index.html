@@ -3,51 +3,24 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>RapidIdentity Pop‑Up Login Demo</title>
+    <title>RapidIdentity Login</title>
     <style>
       body{font-family:system-ui,sans-serif;margin:2rem}
       button{padding:.6rem 1.2rem;font-size:1rem;border-radius:.5rem}
     </style>
   </head>
   <body>
-    <h1>RapidIdentity Pop‑Up Login</h1>
-    <p>Opens the portal in its own window and closes it once authentication is done.</p>
-    <button id="loginBtn">Login with RapidIdentity</button>
-
+    <button id="loginBtn">Open RapidIdentity</button>
     <script>
-      const TENANT_URL = "https://lbenson.us004-rapididentity.com";
+      const TENANT_URL = "https://ocps-dev.us004-rapididentity.com";
       const ENTRY_POINT = "/ui/";
-
-      const loginBtn = document.getElementById("loginBtn");
-      let popup = null;
-
-      loginBtn.addEventListener("click", () => {
-        popup = window.open(
+      document.getElementById("loginBtn").addEventListener("click",()=>{
+        window.open(
           TENANT_URL + ENTRY_POINT,
           "riLogin",
           "width=960,height=800,noopener"
         );
-     
       });
-
-      window.addEventListener("message", (e) => {
-        if (!popup || e.source !== popup || e.origin !== TENANT_URL) return;
-        if (e.data === "ri-login-complete") {
-          popup.close();
-          popup = null;
-        }
-      });
-
-      setInterval(() => {
-        if (!popup || popup.closed) return;
-        try {
-          const url = new URL(popup.location.href);
-          if (url.origin === TENANT_URL && url.pathname.startsWith("/portal")) {
-            popup.close();
-            popup = null;
-          }
-        } catch (_) {}
-      }, 1000);
     </script>
   </body>
 </html>

@@ -1,69 +1,52 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>RapidIdentity pop-up login demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RapidIdentity Pop‑Up Login Demo</title>
     <style>
-      body {font-family: system-ui, sans-serif; margin: 2rem;}
-      button {padding: .6rem 1.2rem; font-size: 1rem; border-radius: .5rem;}
-      #status {margin-top: 1rem; color: #22c55e;}
+      body{font-family:system-ui,sans-serif;margin:2rem}
+      button{padding:.6rem 1.2rem;font-size:1rem;border-radius:.5rem}
     </style>
   </head>
   <body>
-    <h1>RI pop-up login test</h1>
-
-
+    <h1>RapidIdentity Pop‑Up Login</h1>
+    <p>Opens the portal in its own window and closes it once authentication is done.</p>
     <button id="loginBtn">Login with RapidIdentity</button>
-    <div id="status"></div>
 
     <script>
-      // ─── CONFIG ──────────────────────────────────────────────────────────────
-      const TENANT_URL = "https://lbenson.us004-rapididentity.com"; // ← change me
-      const ENTRY_POINT = "/ui/";           // or "/portal/" or a specific IdP URL
-      // ─────────────────────────────────────────────────────────────────────────
+      const TENANT_URL = "https://lbenson.us004-rapididentity.com";
+      const ENTRY_POINT = "/ui/";
 
       const loginBtn = document.getElementById("loginBtn");
-      const statusEl = document.getElementById("status");
-      let popupRef = null;
+      let popup = null;
 
-      // When the user clicks the button, open the portal in a new window.
       loginBtn.addEventListener("click", () => {
-        popupRef = window.open(
+        popup = window.open(
           TENANT_URL + ENTRY_POINT,
           "riLogin",
           "width=960,height=800,noopener"
         );
-        statusEl.textContent = "Waiting for authentication...";
+     
       });
 
-
-      window.addEventListener("message", (event) => {
-        if (!popupRef || event.source !== popupRef) return;
-        if (event.origin !== TENANT_URL) return; 
-
-
-        if (event.data === "ri-login-complete") {
-          statusEl.textContent = "✔ You are logged in!";
-          popupRef.close();
-          popupRef = null;
-
+      window.addEventListener("message", (e) => {
+        if (!popup || e.source !== popup || e.origin !== TENANT_URL) return;
+        if (e.data === "ri-login-complete") {
+          popup.close();
+          popup = null;
         }
       });
 
       setInterval(() => {
-        if (!popupRef || popupRef.closed) return;
-
+        if (!popup || popup.closed) return;
         try {
-          const url = new URL(popupRef.location.href);
+          const url = new URL(popup.location.href);
           if (url.origin === TENANT_URL && url.pathname.startsWith("/portal")) {
-            // user reached the portal dashboard ⇒ auth complete
-            statusEl.textContent = "✔ You are logged in!";
-            popupRef.close();
-            popupRef = null;
+            popup.close();
+            popup = null;
           }
-        } catch (_) {
-          /* ignore cross-origin errors during intermediate redirects */
-        }
+        } catch (_) {}
       }, 1000);
     </script>
   </body>
